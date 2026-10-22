@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Registration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #e9f0f9; --surface: #ffffff; --ink: #14213d; --muted: #5a6a85;
+  --line: #c6d3e6; --accent: #2a5bd7; --accent-ink: #ffffff;
+  --error: #b3261e; --ok: #1b7f4b; --ok-bg: #e4f5ec;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1424; --surface: #162038; --ink: #e8edf7; --muted: #9aa8c4;
+    --line: #2c3a5c; --accent: #7da2ff; --accent-ink: #0d1424;
+    --error: #ff8a80; --ok: #6fe0a3; --ok-bg: #12302a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1424; --surface: #162038; --ink: #e8edf7; --muted: #9aa8c4;
+  --line: #2c3a5c; --accent: #7da2ff; --accent-ink: #0d1424;
+  --error: #ff8a80; --ok: #6fe0a3; --ok-bg: #12302a;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px 16px;
+  background: var(--bg); color: var(--ink);
+  font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+.card {
+  width: 100%; max-width: 440px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 16px; padding: 32px 28px;
+}
+h1 { margin: 0 0 4px; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.sub { margin: 0 0 24px; color: var(--muted); font-size: .95rem; }
+.field { margin-bottom: 18px; }
+label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 6px; }
+.control { position: relative; }
+input {
+  width: 100%; padding: 12px 14px; font: inherit; color: var(--ink);
+  background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px;
+}
+input::placeholder { color: var(--muted); opacity: .7; }
+input:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+input:focus-visible { border-color: var(--accent); }
+.field.invalid input { border-color: var(--error); }
+.msg { min-height: 1.2em; margin: 6px 0 0; font-size: .82rem; color: var(--error); }
+.toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  background: none; border: 0; color: var(--accent); font: inherit; font-size: .85rem;
+  font-weight: 600; padding: 6px 8px; cursor: pointer; border-radius: 6px;
+}
+#password { padding-right: 64px; }
+.meter { display: flex; gap: 4px; margin-top: 8px; }
+.meter span { flex: 1; height: 4px; border-radius: 2px; background: var(--line); transition: background .2s; }
+.meter[data-level="1"] span:nth-child(-n+1) { background: var(--error); }
+.meter[data-level="2"] span:nth-child(-n+2) { background: #d9902f; }
+.meter[data-level="3"] span:nth-child(-n+3) { background: var(--accent); }
+.meter[data-level="4"] span:nth-child(-n+4) { background: var(--ok); }
+.hint { margin: 6px 0 0; font-size: .82rem; color: var(--muted); }
+.primary {
+  width: 100%; margin-top: 6px; padding: 13px 16px; font: inherit; font-weight: 700;
+  color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 10px; cursor: pointer;
+  transition: transform .1s, filter .15s;
+}
+.primary:hover { filter: brightness(1.08); }
+.primary:active { transform: scale(.98); }
+.success { display: none; text-align: center; padding: 8px 0; }
+.success.show { display: block; animation: pop .35s ease-out; }
+.tick {
+  width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%;
+  background: var(--ok-bg); color: var(--ok); display: grid; place-items: center;
+}
+.success h2 { margin: 0 0 8px; font-size: 1.4rem; }
+.success p { margin: 0 0 20px; color: var(--muted); }
+.secondary {
+  padding: 10px 18px; font: inherit; font-weight: 600; color: var(--accent);
+  background: none; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer;
+}
+@keyframes pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .success.show { animation: none; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="card">
+  <div id="formView">
+    <h1>Student registration</h1>
+    <p class="sub">Create your student account in under a minute.</p>
+    <div id="form" role="group" aria-label="Student registration form">
+      <div class="field" id="f-name">
+        <label for="name">Full name</label>
+        <input id="name" type="text" autocomplete="name" placeholder="Asha Verma">
+        <p class="msg" id="e-name" role="alert"></p>
+      </div>
+      <div class="field" id="f-email">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" placeholder="asha@school.edu">
+        <p class="msg" id="e-email" role="alert"></p>
+      </div>
+      <div class="field" id="f-password">
+        <label for="password">Password</label>
+        <div class="control">
+          <input id="password" type="password" autocomplete="new-password" placeholder="At least 8 characters">
+          <button type="button" class="toggle" id="toggle" aria-label="Show password">Show</button>
+        </div>
+        <div class="meter" id="meter" data-level="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <p class="msg" id="e-password" role="alert"></p>
+      </div>
+      <div class="field" id="f-phone">
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" autocomplete="tel" placeholder="+91 98765 43210">
+        <p class="hint">10 to 15 digits. A leading + is fine.</p>
+        <p class="msg" id="e-phone" role="alert"></p>
+      </div>
+      <button type="button" class="primary" id="submit">Submit registration</button>
+    </div>
+  </div>
+
+  <div class="success" id="success" role="status" aria-live="polite">
+    <div class="tick">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </div>
+    <h2 id="welcome">Registration complete</h2>
+    <p id="confirm"></p>
+    <button type="button" class="secondary" id="reset">Register another student</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  var fields = ["name", "email", "password", "phone"];
+  var el = function (id) { return document.getElementById(id); };
+
+  var rules = {
+    name: function (v) {
+      if (!v.trim()) return "Enter your full name.";
+      if (v.trim().length < 2) return "Name must be at least 2 characters.";
+      if (!/^[A-Za-z\u00C0-\u024F\u0900-\u0DFF][A-Za-z\u00C0-\u024F\u0900-\u0DFF .'’-]*$/.test(v.trim())) return "Use letters only in your name.";
+      return "";
+    },
+    email: function (v) {
+      if (!v.trim()) return "Enter your email address.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())) return "Enter a valid email, like name@school.edu.";
+      return "";
+    },
+    password: function (v) {
+      if (!v) return "Create a password.";
+      if (v.length < 8) return "Password must be at least 8 characters.";
+      if (!/[A-Za-z]/.test(v) || !/\d/.test(v)) return "Include at least one letter and one number.";
+      return "";
+    },
+    phone: function (v) {
+      if (!v.trim()) return "Enter your phone number.";
+      var digits = v.replace(/[\s()-]/g, "");
+      if (!/^\+?\d{10,15}$/.test(digits)) return "Enter 10 to 15 digits, with an optional leading +.";
+      return "";
+    }
+  };
+
+  function check(id) {
+    var msg = rules[id](el(id).value);
+    el("e-" + id).textContent = msg;
+    el("f-" + id).classList.toggle("invalid", !!msg);
+    el(id).setAttribute("aria-invalid", msg ? "true" : "false");
+    return !msg;
+  }
+
+  fields.forEach(function (id) {
+    el(id).addEventListener("blur", function () { if (el(id).value) check(id); });
+    el(id).addEventListener("input", function () {
+      if (el("f-" + id).classList.contains("invalid")) check(id);
+    });
+  });
+
+  el("password").addEventListener("input", function () {
+    var v = el("password").value, s = 0;
+    if (v.length >= 8) s++;
+    if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+    if (/\d/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    el("meter").setAttribute("data-level", v ? Math.max(s, 1) : 0);
+  });
+
+  el("toggle").addEventListener("click", function () {
+    var hidden = el("password").type === "password";
+    el("password").type = hidden ? "text" : "password";
+    el("toggle").textContent = hidden ? "Hide" : "Show";
+    el("toggle").setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+  });
+
+  function submit() {
+    var firstBad = null;
+    fields.forEach(function (id) { if (!check(id) && !firstBad) firstBad = id; });
+    if (firstBad) { el(firstBad).focus(); return; }
+    var first = el("name").value.trim().split(/\s+/)[0];
+    el("welcome").textContent = "Welcome, " + first + "!";
+    el("confirm").textContent = "Your registration is complete. We’ve sent a confirmation to " + el("email").value.trim() + ".";
+    el("formView").style.display = "none";
+    el("success").classList.add("show");
+  }
+
+  el("submit").addEventListener("click", submit);
+  el("form").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target.tagName === "INPUT") submit();
+  });
+
+  el("reset").addEventListener("click", function () {
+    fields.forEach(function (id) { el(id).value = ""; el("e-" + id).textContent = ""; el("f-" + id).classList.remove("invalid"); });
+    el("meter").setAttribute("data-level", 0);
+    el("password").type = "password";
+    el("toggle").textContent = "Show";
+    el("success").classList.remove("show");
+    el("formView").style.display = "";
+    el("name").focus();
+  });
+})();
+</script>
+</body>
+</html>
